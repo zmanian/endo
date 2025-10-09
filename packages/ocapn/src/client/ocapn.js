@@ -14,6 +14,7 @@
  * @import { OcapnPublicKey } from '../cryptography.js'
  */
 
+import harden from '@endo/harden';
 import { E, HandledPromise } from '@endo/eventual-send';
 import { Far } from '@endo/marshal';
 import { makePromiseKit } from '@endo/promise-kit';

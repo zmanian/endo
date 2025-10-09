@@ -9,6 +9,7 @@
  * @import { Client, Connection, LocationId, Logger, NetLayer, PendingSession, SelfIdentity, Session, SessionManager } from './types.js'
  */
 
+import harden from '@endo/harden';
 import { makePromiseKit } from '@endo/promise-kit';
 import {
   readOcapnHandshakeMessage,
