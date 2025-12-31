@@ -6,7 +6,7 @@ import { E, Far } from '@endo/far';
 import { makeMarshal } from '@endo/marshal';
 import { makePromiseKit } from '@endo/promise-kit';
 import { makeError, q, X } from '@endo/errors';
-import { makeRefReader } from './ref-reader.js';
+import { iterateBytesStream } from '@endo/exo-stream/iterate-bytes-stream.js';
 import { makeDirectoryMaker } from './directory.js';
 import { makeMailboxMaker } from './mail.js';
 import { makeGuestMaker } from './guest.js';
@@ -853,7 +853,9 @@ const makeDaemonCore = async (
         await null;
         const values = {
           formulaNumber: await randomHex512(),
-          contentSha512: await contentStore.store(makeRefReader(readerRef)),
+          contentSha512: await contentStore.store(
+            await iterateBytesStream(readerRef),
+          ),
         };
 
         await deferredTasks.execute({
