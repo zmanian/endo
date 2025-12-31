@@ -847,14 +847,18 @@ const makeDaemonCore = async (
   };
 
   /** @type {DaemonCore['formulateReadableBlob']} */
-  const formulateReadableBlob = async (readerRef, deferredTasks) => {
+  const formulateReadableBlob = async (streamRef, deferredTasks) => {
     const { formulaNumber, contentSha512 } = await formulaGraphJobs.enqueue(
       async () => {
         await null;
         const values = {
           formulaNumber: await randomHex512(),
           contentSha512: await contentStore.store(
-            await iterateBytesStream(readerRef),
+            // Use a higher string length limit to accommodate large payloads
+            // like bundles. 10MB base64 ~= 7.5MB binary.
+            await iterateBytesStream(streamRef, {
+              stringLengthLimit: 10_000_000,
+            }),
           ),
         };
 

@@ -2,6 +2,7 @@ import type { Passable } from '@endo/pass-style';
 import type { ERef } from '@endo/eventual-send';
 import type { FarRef } from '@endo/far';
 import type { Reader, Writer, Stream } from '@endo/stream';
+import type { PassableBytesReader } from '@endo/exo-stream';
 
 export type SomehowAsyncIterable<T> =
   | AsyncIterable<T>
@@ -505,7 +506,7 @@ export type RequestFn = (
 
 export interface EndoReadable {
   sha512(): string;
-  streamBase64(): FarRef<Reader<string>>;
+  streamBase64(): PassableBytesReader;
   text(): Promise<string>;
   json(): Promise<unknown>;
 }
@@ -568,7 +569,7 @@ export type FarEndoGuest = FarRef<EndoGuest>;
 
 export interface EndoHost extends EndoAgent {
   storeBlob(
-    readerRef: ERef<AsyncIterableIterator<string>>,
+    readerRef: ERef<PassableBytesReader>,
     petName: string,
   ): Promise<FarRef<EndoReadable>>;
   storeValue<T extends Passable>(
@@ -920,7 +921,7 @@ export interface DaemonCore {
   ) => FormulateResult<EndoPeer>;
 
   formulateReadableBlob: (
-    readerRef: ERef<AsyncIterableIterator<string>>,
+    readerRef: ERef<PassableBytesReader>,
     deferredTasks: DeferredTasks<ReadableBlobDeferredTaskParams>,
   ) => FormulateResult<FarRef<EndoReadable>>;
 
