@@ -33,7 +33,7 @@ harden(sink);
  */
 export const reverseSlot = slot => {
   const otherDir = slot[1] === '+' ? '-' : '+';
-  const revslot = `${slot[0]}${otherDir}${slot.slice(2)}`;
+  const revslot = /** @type {Slot} */ (`${slot[0]}${otherDir}${slot.slice(2)}`);
   return revslot;
 };
 
@@ -85,19 +85,20 @@ const makeDefaultCapTPImportExportTables = ({
    */
   const makeSlotForValue = val => {
     /** @type {Slot} */
+    /** @type {Slot} */
     let slot;
     if (isPromise(val)) {
       // This is a promise, so we're going to increment the lastPromiseID
       // and use that to construct the slot name.  Promise slots are prefaced
       // with 'p+'.
       lastExportID += 1;
-      slot = `p+${lastExportID}`;
+      slot = /** @type {Slot} */ (`p+${lastExportID}`);
     } else {
       // Since this isn't a promise, we instead increment the lastExportId and
       // use that to construct the slot name.  Non-promises are prefaced with
       // 'o+' for normal objects.
       lastExportID += 1;
-      slot = `o+${lastExportID}`;
+      slot = /** @type {Slot} */ (`o+${lastExportID}`);
     }
     return slot;
   };
@@ -308,7 +309,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
       let slot;
       if (exportedTrapHandlers.has(val)) {
         lastTrapID += 1;
-        slot = `t+${lastTrapID}`;
+        slot = /** @type {Slot} */ (`t+${lastTrapID}`);
       } else {
         slot = importExportTables.makeSlotForValue(val);
       }
@@ -338,7 +339,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
    */
   const makeQuestion = () => {
     lastQuestionID += 1;
-    const slotID = `q-${lastQuestionID}`;
+    const slotID = /** @type {Slot} */ (`q-${lastQuestionID}`);
 
     const { promise, settler } = makeRemoteKit(slotID);
     settlers.set(slotID, settler);
@@ -355,7 +356,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
     // eslint-disable-next-line no-use-before-define
     registerImport(promise, slotID);
 
-    return [sendSlot.add(slotID), promise];
+    return [/** @type {Slot} */ (sendSlot.add(slotID)), promise];
   };
 
   // Used by the trap mechanism.
