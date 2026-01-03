@@ -1,5 +1,5 @@
 /** @import {RemoteKit, Settler} from '@endo/eventual-send' */
-/** @import {CapTPSlot} from './types.js' */
+/** @import {Slot} from './types.js' */
 
 /**
  * @import { Logger } from '../client/types.js'
@@ -28,8 +28,8 @@ harden(sink);
  * us, we need to reference just our own slot, not one from their
  * side.
  *
- * @param {CapTPSlot} slot
- * @returns {CapTPSlot} slot with direction reversed
+ * @param {Slot} slot
+ * @returns {Slot} slot with direction reversed
  */
 export const reverseSlot = slot => {
   const otherDir = slot[1] === '+' ? '-' : '+';
@@ -39,21 +39,21 @@ export const reverseSlot = slot => {
 
 /**
  * @typedef {object} CapTPImportExportTables 
- * @property {(value: any) => CapTPSlot} makeSlotForValue
- * @property {(slot: CapTPSlot, iface: string | undefined) => any} makeValueForSlot
- * @property {(slot: CapTPSlot) => boolean} hasImport
- * @property {(slot: CapTPSlot) => any} getImport
- * @property {(slot: CapTPSlot, value: any) => void} markAsImported
- * @property {(slot: CapTPSlot) => boolean} hasExport
- * @property {(slot: CapTPSlot) => any} getExport
- * @property {(slot: CapTPSlot, value: any) => void} markAsExported
- * @property {(slot: CapTPSlot) => void} deleteExport
+ * @property {(value: any) => Slot} makeSlotForValue
+ * @property {(slot: Slot, iface: string | undefined) => any} makeValueForSlot
+ * @property {(slot: Slot) => boolean} hasImport
+ * @property {(slot: Slot) => any} getImport
+ * @property {(slot: Slot, value: any) => void} markAsImported
+ * @property {(slot: Slot) => boolean} hasExport
+ * @property {(slot: Slot) => any} getExport
+ * @property {(slot: Slot, value: any) => void} markAsExported
+ * @property {(slot: Slot) => void} deleteExport
  * @property {() => void} didDisconnect
  
  * @typedef {object} MakeCapTPImportExportTablesOptions
  * @property {boolean} gcImports
- * @property {(slot: CapTPSlot) => void} releaseSlot
- * @property {(slot: CapTPSlot) => RemoteKit} makeRemoteKit
+ * @property {(slot: Slot) => void} releaseSlot
+ * @property {(slot: Slot) => RemoteKit} makeRemoteKit
  
  * @param {MakeCapTPImportExportTablesOptions} options
  * @returns {CapTPImportExportTables}
@@ -63,11 +63,11 @@ const makeDefaultCapTPImportExportTables = ({
   releaseSlot,
   makeRemoteKit,
 }) => {
-  /** @type {Map<CapTPSlot, any>} */
+  /** @type {Map<Slot, any>} */
   const slotToExported = new Map();
   const slotToImported = makeFinalizingMap(
     /**
-     * @param {CapTPSlot} slotID
+     * @param {Slot} slotID
      */
     slotID => {
       releaseSlot(slotID);
@@ -81,10 +81,10 @@ const makeDefaultCapTPImportExportTables = ({
    * Called when we have encountered a new value that needs to be assigned a slot.
    *
    * @param {any} val
-   * @returns {CapTPSlot}
+   * @returns {Slot}
    */
   const makeSlotForValue = val => {
-    /** @type {CapTPSlot} */
+    /** @type {Slot} */
     let slot;
     if (isPromise(val)) {
       // This is a promise, so we're going to increment the lastPromiseID
@@ -105,7 +105,7 @@ const makeDefaultCapTPImportExportTables = ({
   /**
    * Called when we have a new slot that needs to be made into a value.
    *
-   * @param {CapTPSlot} slot
+   * @param {Slot} slot
    * @param {string | undefined} iface
    * @returns {{val: any, settler: Settler }}
    */
@@ -184,38 +184,38 @@ const makeRefCounter = (specimenToRefCount, predicate) => {
 
 /**
  * @typedef {object} CapTPEngineOptions the options to makeCapTP
- * @property {(val: unknown, slot: CapTPSlot) => void} [exportHook]
- * @property {(val: unknown, slot: CapTPSlot) => void} [importHook]
- * @property {(slotID: CapTPSlot, decRefs: number) => void} [importCollectedHook]
+ * @property {(val: unknown, slot: Slot) => void} [exportHook]
+ * @property {(val: unknown, slot: Slot) => void} [importHook]
+ * @property {(slotID: Slot, decRefs: number) => void} [importCollectedHook]
  * @property {boolean} [gcImports] if true, aggressively garbage collect imports
  * @property {(MakeCapTPImportExportTablesOptions) => CapTPImportExportTables} [makeCapTPImportExportTables] provide external import/export tables
  * @property {WeakSet<any>} [exportedTrapHandlers]
  *
  * @typedef {object} CapTPEngine
- * @property {(val: unknown) => CapTPSlot | undefined} getSlotForValue
+ * @property {(val: unknown) => Slot | undefined} getSlotForValue
  * Gets the slot for a value, but does not register a new slot if the value is
  * unknown.
  * @property {() => Record<string, Record<string, number>>} getStats
- * @property {((slot: CapTPSlot, toDecr: number) => void)} dropSlotRefs
+ * @property {((slot: Slot, toDecr: number) => void)} dropSlotRefs
  * @property {((questionID: string, result: any) => void)} resolveAnswer
  * @property {((questionID: string) => boolean)} hasAnswer
  * @property {((questionID: string) => any)} getAnswer
  * @property {((answerID: string, result: any) => void)} resolveQuestion
  * @property {((answerID: string, exception: any) => void)} rejectQuestion
  * @property {((reason: any) => void)} disconnect
- * @property {import('@endo/marshal').ConvertValToSlot<CapTPSlot>} convertValToSlot
- * @property {import('@endo/marshal').ConvertSlotToVal<CapTPSlot>} convertSlotToVal
+ * @property {import('@endo/marshal').ConvertValToSlot<Slot>} convertValToSlot
+ * @property {import('@endo/marshal').ConvertSlotToVal<Slot>} convertSlotToVal
  * @property {RefCounter<string>} recvSlot
  * @property {RefCounter<string>} sendSlot
- * @property {() => [CapTPSlot, Promise<any>]} makeQuestion
+ * @property {() => [Slot, Promise<any>]} makeQuestion
  * @property {() => string} takeNextQuestionID
- * @property {((val: unknown, slot: CapTPSlot) => void)} registerExport
- * @property {((val: unknown, slot: CapTPSlot) => void)} registerImport
+ * @property {((val: unknown, slot: Slot) => void)} registerExport
+ * @property {((val: unknown, slot: Slot) => void)} registerImport
  * @property {((questionID: string) => Settler<any>)} takeSettler
- * @property {((slot: CapTPSlot) => any)} getExport
+ * @property {((slot: Slot) => any)} getExport
  *  * Gets the value for a slot, but does not create a new value if the slot is
  * unknown.
- * @property {((slot: CapTPSlot) => any)} getImport
+ * @property {((slot: Slot) => any)} getImport
  *  * Gets the value for a slot, but does not create a new value if the slot is
  * unknown.
  */
@@ -247,7 +247,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
     exportedTrapHandlers = new WeakSet(),
   } = opts;
 
-  /** @type {Map<CapTPSlot, number>} */
+  /** @type {Map<Slot, number>} */
   const slotToNumRefs = new Map();
 
   /** @type {RefCounter<string>} */
@@ -262,7 +262,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
     slot => typeof slot === 'string' && slot[1] === '+',
   );
 
-  /** @type {WeakMap<any, CapTPSlot>} */
+  /** @type {WeakMap<any, Slot>} */
   const valToSlot = new WeakMap(); // exports looked up by val
 
   // Used to construct slot names for questions.
@@ -272,7 +272,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
   let lastQuestionID = 0;
   let lastTrapID = 0;
 
-  /** @type {Map<CapTPSlot, Settler<unknown>>} */
+  /** @type {Map<Slot, Settler<unknown>>} */
   const settlers = new Map();
   /** @type {Map<string, any>} */
   const answers = new Map(); // chosen by our peer
@@ -300,11 +300,11 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
    * promise listener to inform the other side when the promise is
    * fulfilled/broken.
    *
-   * @type {import('@endo/marshal').ConvertValToSlot<CapTPSlot>}
+   * @type {import('@endo/marshal').ConvertValToSlot<Slot>}
    */
   function convertValToSlot(val) {
     if (!valToSlot.has(val)) {
-      /** @type {CapTPSlot} */
+      /** @type {Slot} */
       let slot;
       if (exportedTrapHandlers.has(val)) {
         lastTrapID += 1;
@@ -334,7 +334,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
    * Generate a new question in the questions table and set up a new
    * remote handled promise.
    *
-   * @returns {[CapTPSlot, Promise]}
+   * @returns {[Slot, Promise]}
    */
   const makeQuestion = () => {
     lastQuestionID += 1;
@@ -367,7 +367,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
   /**
    * Set up import
    *
-   * @type {import('@endo/marshal').ConvertSlotToVal<CapTPSlot>}
+   * @type {import('@endo/marshal').ConvertSlotToVal<Slot>}
    */
   function convertSlotToVal(slot, iface = undefined) {
     if (slot[1] === '+') {
@@ -400,7 +400,7 @@ export const makeCapTPEngine = (ourId, logger, makeRemoteKit, opts = {}) => {
   };
 
   /**
-   * @param {CapTPSlot} slot
+   * @param {Slot} slot
    * @param {number} toDecr
    */
   const dropSlotRefs = (slot, toDecr) => {
