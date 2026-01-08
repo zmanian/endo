@@ -4,7 +4,7 @@
  * @import { OcapnLocation, OcapnSignature } from '../codecs/components.js'
  * @import { OcapnPublicKey } from '../cryptography.js'
  * @import { Ocapn } from './ocapn.js'
- * @import { Connection, Logger, SelfIdentity, Session, SessionManager, SessionId } from './types.js'
+ * @import { Connection, InternalSession, Logger, SelfIdentity, SessionManager, SessionId } from './types.js'
  */
 
 import {
@@ -70,7 +70,7 @@ const compareSessionKeysForCrossedHellos = (
  * @param {OcapnSignature} options.peerLocationSig
  * @param {Ocapn} options.ocapn
  * @param {Connection} options.connection
- * @returns {Session}
+ * @returns {InternalSession}
  */
 const makeSession = ({
   id,
