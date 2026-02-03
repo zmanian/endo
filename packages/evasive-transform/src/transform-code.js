@@ -70,6 +70,7 @@ export const evadeTemplates = p => {
   // Handle template literals (multiline strings)
   // `import(` -> `im${}port(`
   // The transform is only meaning-preserving if not part of a TaggedTemplateExpression, so these need to be excluded until a motivating case shows up. It should be possible to wrap the tag with a function that omits expressions we insert, but that's a lot of work to do preemptively.
+  // https://github.com/endojs/endo/pull/3026#discussion_r2632507228
   if (
     type !== 'TemplateLiteral' ||
     p.parent.type === 'TaggedTemplateExpression'
